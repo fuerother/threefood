@@ -72,16 +72,20 @@ button {
 }
 
 .wheel-card {
-  min-height: 500px;
-  display: grid;
-  place-items: center;
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  padding: 18px 0 8px;
 }
 
 .wheel {
-  width: min(82vw, 460px);
-  height: min(82vw, 460px);
+  width: min(82vw, 500px);
+  height: min(82vw, 500px);
   border-radius: 50%;
   position: relative;
   background: #fff;
@@ -101,28 +105,31 @@ button {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  opacity: .95;
+  opacity: 1;
 }
 
 .ring-label {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 68px;
-  margin-left: -34px;
-  margin-top: -11px;
+  width: 84px;
+  margin-left: -42px;
+  margin-top: -13px;
   text-align: center;
-  font-size: 12px;
+  font-size: 14px;
+  line-height: 1.25;
   font-weight: 900;
-  color: rgba(43, 33, 24, .78);
+  color: rgba(43, 33, 24, .92);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   pointer-events: none;
-  padding: 2px 4px;
+  padding: 4px 6px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, .28);
-  backdrop-filter: blur(1px);
+  background: rgba(255, 255, 255, .64);
+  box-shadow: 0 2px 8px rgba(116, 64, 18, .08);
+  backdrop-filter: blur(2px);
+  text-shadow: 0 1px 0 rgba(255,255,255,.55);
 }
 
 .ring-label.selected {
@@ -187,15 +194,17 @@ button {
 }
 
 .wheel-hint {
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: static;
   width: max-content;
   max-width: calc(100% - 32px);
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.5;
   text-align: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.68);
+  border: 1px solid var(--border);
 }
 
 .result-card { padding: 28px; display: flex; flex-direction: column; justify-content: center; }
@@ -207,7 +216,7 @@ button {
   background: #fff7ed;
   border: 1px dashed #f1c395;
   line-height: 1.8;
-  margin-bottom: 18px;
+  margin-bottom: 0;
 }
 .result-box.empty { color: var(--muted); display: flex; align-items: center; }
 .dish-line { font-size: 20px; font-weight: 900; margin: 8px 0; }
@@ -246,7 +255,7 @@ button {
 
 @media (max-width: 820px) {
   .wheel-section { grid-template-columns: 1fr; }
-  .wheel-card { min-height: 430px; }
+  .wheel-card { min-height: 500px; gap: 16px; }
   .wheel { width: min(88vw, 390px); height: min(88vw, 390px); }
   .result-card { padding: 22px; }
   .ring-label { width: 62px; margin-left: -31px; font-size: 12px; }
@@ -259,20 +268,20 @@ button {
 /* v3：多圈反向旋转转盘 */
 .ring-label.cuisine,
 .ring-label.breakfastCuisine {
-  width: 60px;
-  margin-left: -30px;
-  font-size: 12px;
+  width: 72px;
+  margin-left: -36px;
+  font-size: 13px;
 }
 .ring-label.meat {
-  width: 70px;
-  margin-left: -35px;
-  font-size: 12px;
+  width: 86px;
+  margin-left: -43px;
+  font-size: 13px;
 }
 .ring-label.vegetable,
 .ring-label.breakfast {
-  width: 66px;
-  margin-left: -33px;
-  font-size: 11px;
+  width: 84px;
+  margin-left: -42px;
+  font-size: 12px;
 }
 .ring-title.cuisine { width: 70px; height: 28px; transform: translate(-50%, -50%) translateY(-178px); }
 .ring-title.meat { width: 70px; height: 28px; transform: translate(-50%, -50%) translateY(-127px); }

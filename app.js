@@ -45,7 +45,7 @@ const dishes = {
   ]
 }
 
-const STORAGE_KEY = 'mealRandomHistoryV5'
+const STORAGE_KEY = 'mealRandomHistoryV6'
 const questionMap = {
   breakfast: '早餐吃什么？',
   lunch: '中午吃什么？',
@@ -412,7 +412,7 @@ clearHistoryBtn.addEventListener('click', () => {
   if (!confirmed) return
   localStorage.removeItem(STORAGE_KEY)
   resultBox.className = 'result-box empty'
-  resultBox.textContent = '记录已清空，点击转盘中心可以重新开始随机。'
+  resultBox.textContent = '点击左侧转盘，结果会在这里依次跳出。'
   lastSelectedIds = []
   renderWheel()
   renderHistory()

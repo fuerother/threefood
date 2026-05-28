@@ -27,14 +27,15 @@
       <div class="wheel-card">
         <div class="pointer"></div>
         <div class="wheel" id="wheel"></div>
-        <div class="wheel-hint">点击转盘中心「开抽」</div>
+        <div class="wheel-hint">点击转盘中心「开抽」，多圈会同时反向旋转 3 秒</div>
       </div>
 
       <div class="result-card panel">
         <p class="result-label">本次推荐</p>
         <div id="resultBox" class="result-box empty">
-          点击左侧转盘，结果会在这里依次跳出。
+          直接点击左侧转盘中心，开始决定今天吃什么。
         </div>
+        <div class="interaction-note">不再单独放按钮，转盘本身就是主要交互入口。</div>
       </div>
     </section>
 
