@@ -45,7 +45,7 @@ const dishes = {
   ]
 }
 
-const STORAGE_KEY = 'mealRandomHistoryV3'
+const STORAGE_KEY = 'mealRandomHistoryV5'
 const questionMap = {
   breakfast: '早餐吃什么？',
   lunch: '中午吃什么？',
@@ -72,10 +72,11 @@ let lastSelectedIds = []
 let lastSpinMeta = null
 
 const wheel = document.querySelector('#wheel')
+wheel.setAttribute('tabindex', '0')
+wheel.setAttribute('role', 'button')
+wheel.setAttribute('aria-label', '点击开抽')
 const questionText = document.querySelector('#questionText')
 const resultBox = document.querySelector('#resultBox')
-const drawBtn = document.querySelector('#drawBtn')
-const redrawBtn = document.querySelector('#redrawBtn')
 const clearHistoryBtn = document.querySelector('#clearHistoryBtn')
 const historyList = document.querySelector('#historyList')
 const mealButtons = document.querySelectorAll('.meal-btn')
@@ -228,8 +229,23 @@ function renderWheel(selectedIds = lastSelectedIds) {
 
   const center = document.createElement('div')
   center.className = 'wheel-center'
-  center.innerHTML = isSpinning ? '正在<br>选择' : '开抽'
+  center.innerHTML = isSpinning ? '转动中<br><span>3s</span>' : '点击<br>开抽'
   wheel.appendChild(center)
+}
+
+function renderPendingResult(mealType) {
+  resultBox.classList.remove('empty')
+  if (mealType === 'breakfast') {
+    resultBox.innerHTML = `
+      <div class="pending-line">早餐圈正在转动...</div>
+      <p class="result-note">停稳后早餐会跳出来。</p>
+    `
+    return
+  }
+  resultBox.innerHTML = `
+    <div class="pending-line">菜系圈、荤菜圈、素菜圈正在一起转...</div>
+    <p class="result-note">停稳后荤菜、素菜会依次跳出来。</p>
+  `
 }
 
 function renderResult(mealType, selectedDishes) {
@@ -238,20 +254,26 @@ function renderResult(mealType, selectedDishes) {
   if (mealType === 'breakfast') {
     const dish = selectedDishes[0]
     resultBox.innerHTML = `
-      <div class="dish-line"><span class="dish-tag">早餐</span>${dish.name}</div>
-      <p>菜系/类型：${dish.cuisine}</p>
-      <p class="result-note">外圈是类型，内圈是早餐；最终结果以这里为准。</p>
+      <div class="dish-reveal breakfast-reveal">
+        <div class="dish-line"><span class="dish-tag">早餐</span>${dish.name}</div>
+        <p>菜系/类型：${dish.cuisine}</p>
+      </div>
+      <p class="result-note">早餐只抽一个，7 天内尽量不重复。</p>
     `
     return
   }
 
   const [meat, vegetable] = selectedDishes
   resultBox.innerHTML = `
-    <div class="dish-line"><span class="dish-tag">荤菜</span>${meat.name}</div>
-    <p>菜系/类型：${meat.cuisine}</p>
-    <div class="dish-line"><span class="dish-tag green">素菜</span>${vegetable.name}</div>
-    <p>菜系/类型：${vegetable.cuisine}</p>
-    <p class="result-note">外圈菜系、中圈荤菜、内圈素菜依次反向旋转，停稳后按这里的菜名为准。</p>
+    <div class="dish-reveal reveal-one">
+      <div class="dish-line"><span class="dish-tag">荤菜</span>${meat.name}</div>
+      <p>菜系/类型：${meat.cuisine}</p>
+    </div>
+    <div class="dish-reveal reveal-two">
+      <div class="dish-line"><span class="dish-tag green">素菜</span>${vegetable.name}</div>
+      <p>菜系/类型：${vegetable.cuisine}</p>
+    </div>
+    <p class="result-note">结果按停稳后跳出的菜名为准。</p>
   `
 }
 
@@ -287,7 +309,7 @@ function renderHistory() {
   }).join('')
 }
 
-function setRingTarget(type, list, itemId, turns, direction = 1) {
+function getRingTarget(type, list, itemId, turns, direction = 1) {
   const targetAngle = getSegmentCenterAngle(list, itemId)
   const current = ringState[type]
   const normalizedCurrent = ((current % 360) + 360) % 360
@@ -295,34 +317,52 @@ function setRingTarget(type, list, itemId, turns, direction = 1) {
 
   if (direction > 0) {
     const deltaClockwise = ((desired - normalizedCurrent) % 360 + 360) % 360
-    ringState[type] = current + turns * 360 + deltaClockwise
-  } else {
-    const deltaCounterClockwise = ((normalizedCurrent - desired) % 360 + 360) % 360
-    ringState[type] = current - turns * 360 - deltaCounterClockwise
+    return current + turns * 360 + deltaClockwise
   }
+
+  const deltaCounterClockwise = ((normalizedCurrent - desired) % 360 + 360) % 360
+  return current - turns * 360 - deltaCounterClockwise
+}
+
+function applyRingRotation(type, targetDeg) {
+  const node = wheel.querySelector(`[data-ring="${type}"]`)
+  if (!node) return
+  node.style.transform = `rotate(${targetDeg}deg)`
 }
 
 function spinWheel(selectedDishes, callback) {
   if (isSpinning) return
   isSpinning = true
-  drawBtn.disabled = true
-  redrawBtn.disabled = true
+  wheel.classList.add('is-spinning')
+  renderPendingResult(currentMeal)
 
+  // 关键修复：先按“当前角度”渲染转盘，再在下一帧修改 transform。
+  // 这样浏览器能捕捉到起点和终点，transition 才会真正播放。
+  renderWheel([])
+
+  const targets = {}
   if (currentMeal === 'breakfast') {
     const breakfast = selectedDishes[0]
     const cuisineList = uniqueCuisineItems(dishes.breakfast)
-    setRingTarget('breakfastCuisine', cuisineList, `c-${breakfast.cuisine}`, 4 + Math.floor(Math.random() * 3), 1)
-    setRingTarget('breakfast', dishes.breakfast, breakfast.id, 5 + Math.floor(Math.random() * 3), -1)
+    targets.breakfastCuisine = getRingTarget('breakfastCuisine', cuisineList, `c-${breakfast.cuisine}`, 5 + Math.floor(Math.random() * 3), 1)
+    targets.breakfast = getRingTarget('breakfast', dishes.breakfast, breakfast.id, 6 + Math.floor(Math.random() * 3), -1)
   } else {
     const [meat, vegetable] = selectedDishes
     const cuisineList = getCurrentCuisineList()
     const selectedCuisine = Math.random() > 0.5 ? meat.cuisine : vegetable.cuisine
-    setRingTarget('cuisine', cuisineList, `c-${selectedCuisine}`, 4 + Math.floor(Math.random() * 3), 1)
-    setRingTarget('meat', dishes.meat, meat.id, 5 + Math.floor(Math.random() * 3), -1)
-    setRingTarget('vegetable', dishes.vegetable, vegetable.id, 6 + Math.floor(Math.random() * 3), 1)
+    targets.cuisine = getRingTarget('cuisine', cuisineList, `c-${selectedCuisine}`, 5 + Math.floor(Math.random() * 3), 1)
+    targets.meat = getRingTarget('meat', dishes.meat, meat.id, 6 + Math.floor(Math.random() * 3), -1)
+    targets.vegetable = getRingTarget('vegetable', dishes.vegetable, vegetable.id, 7 + Math.floor(Math.random() * 3), 1)
   }
 
-  renderWheel([])
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      Object.entries(targets).forEach(([type, targetDeg]) => {
+        applyRingRotation(type, targetDeg)
+        ringState[type] = targetDeg
+      })
+    })
+  })
 
   window.setTimeout(() => {
     isSpinning = false
@@ -334,10 +374,9 @@ function spinWheel(selectedDishes, callback) {
       lastSelectedIds.push(`c-${meat.cuisine}`, `c-${vegetable.cuisine}`)
     }
     renderWheel(lastSelectedIds)
-    drawBtn.disabled = false
-    redrawBtn.disabled = false
+    wheel.classList.remove('is-spinning')
     callback()
-  }, 3100)
+  }, 3200)
 }
 
 function drawMeal() {
@@ -361,14 +400,19 @@ mealButtons.forEach(button => {
   })
 })
 
-drawBtn.addEventListener('click', drawMeal)
-redrawBtn.addEventListener('click', drawMeal)
+wheel.addEventListener('click', drawMeal)
+wheel.addEventListener('keydown', event => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault()
+    drawMeal()
+  }
+})
 clearHistoryBtn.addEventListener('click', () => {
   const confirmed = window.confirm('确定要清空最近 7 天记录吗？')
   if (!confirmed) return
   localStorage.removeItem(STORAGE_KEY)
   resultBox.className = 'result-box empty'
-  resultBox.textContent = '记录已清空，可以重新开始随机。'
+  resultBox.textContent = '记录已清空，点击转盘中心可以重新开始随机。'
   lastSelectedIds = []
   renderWheel()
   renderHistory()

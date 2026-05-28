@@ -279,3 +279,83 @@ button {
 .ring-title.vegetable { width: 70px; height: 28px; transform: translate(-50%, -50%) translateY(-76px); }
 .ring-title.breakfastCuisine { width: 70px; height: 28px; transform: translate(-50%, -50%) translateY(-174px); }
 .ring-title.breakfast { width: 70px; height: 28px; transform: translate(-50%, -50%) translateY(-108px); }
+
+/* v4：转盘即按钮 + 游戏感反馈 */
+.wheel {
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease;
+  user-select: none;
+}
+.wheel:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 30px 70px rgba(125, 69, 20, 0.25);
+}
+.wheel:focus-visible {
+  outline: 4px solid rgba(255, 122, 26, .35);
+  outline-offset: 8px;
+}
+.wheel.is-spinning {
+  cursor: wait;
+  animation: wheelBreath 1s ease-in-out infinite;
+}
+.wheel-center {
+  cursor: pointer;
+  transition: transform .2s ease, background .2s ease;
+}
+.wheel:hover .wheel-center {
+  transform: scale(1.04);
+  background: #fff8ef;
+}
+.wheel-center span {
+  font-size: 13px;
+  opacity: .78;
+}
+.interaction-note {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #fffaf4;
+  border: 1px solid var(--border);
+}
+.pending-line {
+  font-size: 18px;
+  font-weight: 900;
+  color: #9a551d;
+  padding: 12px 0;
+  animation: pendingPulse .8s ease-in-out infinite alternate;
+}
+.dish-reveal {
+  opacity: 0;
+  transform: translateY(16px) scale(.96);
+  animation: dishPop .48s cubic-bezier(.2, .9, .2, 1.25) forwards;
+  padding: 8px 0;
+}
+.reveal-one, .breakfast-reveal { animation-delay: .05s; }
+.reveal-two { animation-delay: .48s; }
+.ring-layer {
+  will-change: transform;
+}
+.ring-label.selected {
+  animation: selectedPulse .75s ease-in-out 2;
+}
+
+@keyframes dishPop {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes pendingPulse {
+  from { opacity: .55; transform: translateY(0); }
+  to { opacity: 1; transform: translateY(-2px); }
+}
+@keyframes wheelBreath {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(255,122,26,0)); }
+  50% { filter: drop-shadow(0 0 16px rgba(255,122,26,.26)); }
+}
+@keyframes selectedPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}

@@ -11,7 +11,7 @@
     <section class="hero">
       <p class="eyebrow">Meal Randomizer</p>
       <h1>今天吃什么？</h1>
-      <p class="desc">早餐随机 1 个，午餐/晚餐自动生成“一荤一素”。转盘按多圈菜名滚动，最终结果在右侧定格展示。</p>
+      <p class="desc">早餐随机 1 个，午餐/晚餐自动生成“一荤一素”。直接点击转盘中心开抽，停稳后结果一个一个跳出来。</p>
     </section>
 
     <section class="panel question-panel">
@@ -27,16 +27,15 @@
       <div class="wheel-card">
         <div class="pointer"></div>
         <div class="wheel" id="wheel"></div>
-        <div class="wheel-hint">多圈转盘：外圈抽荤菜，内圈抽素菜；早餐只显示早餐圈</div>
+        <div class="wheel-hint">点击转盘中心「开抽」，多圈会同时反向旋转 3 秒</div>
       </div>
 
       <div class="result-card panel">
         <p class="result-label">本次推荐</p>
         <div id="resultBox" class="result-box empty">
-          点击下方按钮，开始决定今天吃什么。
+          直接点击左侧转盘中心，开始决定今天吃什么。
         </div>
-        <button id="drawBtn" class="primary-btn">开始随机</button>
-        <button id="redrawBtn" class="ghost-btn">再抽一次</button>
+        <div class="interaction-note">不再单独放按钮，转盘本身就是主要交互入口。</div>
       </div>
     </section>
 
