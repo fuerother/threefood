@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>今天吃什么</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <p class="eyebrow">Meal Randomizer</p>
+      <h1>今天吃什么？</h1>
+      <p class="desc">早餐随机 1 个，午餐/晚餐自动生成“一荤一素”。转盘按多圈菜名滚动，最终结果在右侧定格展示。</p>
+    </section>
+
+    <section class="panel question-panel">
+      <h2 id="questionText">今晚吃什么？</h2>
+      <div class="meal-tabs" role="group" aria-label="选择用餐场景">
+        <button class="meal-btn" data-meal="breakfast">早餐</button>
+        <button class="meal-btn" data-meal="lunch">午餐</button>
+        <button class="meal-btn active" data-meal="dinner">晚餐</button>
+      </div>
+    </section>
+
+    <section class="wheel-section">
+      <div class="wheel-card">
+        <div class="pointer"></div>
+        <div class="wheel" id="wheel"></div>
+        <div class="wheel-hint">多圈转盘：外圈抽荤菜，内圈抽素菜；早餐只显示早餐圈</div>
+      </div>
+
+      <div class="result-card panel">
+        <p class="result-label">本次推荐</p>
+        <div id="resultBox" class="result-box empty">
+          点击下方按钮，开始决定今天吃什么。
+        </div>
+        <button id="drawBtn" class="primary-btn">开始随机</button>
+        <button id="redrawBtn" class="ghost-btn">再抽一次</button>
+      </div>
+    </section>
+
+    <section class="panel history-panel">
+      <div class="section-title-row">
+        <h3>最近 7 天记录</h3>
+        <button id="clearHistoryBtn" class="text-btn">清空记录</button>
+      </div>
+      <div id="historyList" class="history-list"></div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
